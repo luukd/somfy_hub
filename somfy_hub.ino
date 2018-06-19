@@ -53,6 +53,9 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 const char* inTopic = "cmnd/somfy_hub_sonoff/#";
 const char* outTopic = "stat/somfy_hub_sonoff/";
+const char* willTopic = "tele/somfy_hub_sonoff/LWT";
+const char* onlineMessage = "Online";
+const char* offlineMessage = "Offline";
 
 //publicate functions
 void BuildFrame(byte *frame, byte button);
@@ -157,9 +160,9 @@ void reconnect() {
     while (!client.connected()) {
       Serial.print("Attempting MQTT connection...");
       // Attempt to connect
-      if (client.connect("SOMFY_HUB_SONOFF")) {
-        Serial.println("connected");        
-        client.publish(outTopic, "Somfy Hub booted");        
+      if (client.connect("somfyhub", mqtt_username, mqtt_password, willTopic, 0, true, offlineMessage)) {
+        Serial.println("connected");
+        client.publish(willTopic, onlineMessage, true);
         // ... and resubscribe
         client.subscribe(inTopic);  
       } else {
